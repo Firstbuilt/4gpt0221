@@ -8,60 +8,98 @@
   </head>
   <body>
     <header class="header">
-      <h1>欧盟 AI 监管追踪台</h1>
-      <p>为“欧洲隐私合规专家”提供知识库、监管动态与分析报告的一体化工作台。</p>
+      <div>
+        <h1>欧盟 AI 监管追踪台</h1>
+        <p>面向欧洲市场 AI 产品的合规监测与管理层汇报前台</p>
+      </div>
+      <button id="seed-demo" class="secondary">加载演示数据</button>
     </header>
 
-    <main class="layout">
-      <section class="card">
-        <h2>身份与业务背景</h2>
-        <ul>
-          <li><strong>你的身份：</strong>欧洲隐私合规专家</li>
-          <li><strong>公司背景：</strong>中国总部企业，计划面向欧洲市场推出 AI 大模型及应用</li>
-          <li><strong>汇报对象：</strong>公司内部管理层</li>
-        </ul>
+    <main class="container">
+      <section class="panel kpi-grid">
+        <article class="kpi">
+          <h3>知识条目总数</h3>
+          <p id="kpi-knowledge">0</p>
+        </article>
+        <article class="kpi">
+          <h3>监管动态总数</h3>
+          <p id="kpi-updates">0</p>
+        </article>
+        <article class="kpi privacy">
+          <h3>隐私合规占比</h3>
+          <p id="kpi-privacy-ratio">0%</p>
+        </article>
+        <article class="kpi">
+          <h3>澄清完成度</h3>
+          <p id="kpi-clarification">0/0</p>
+        </article>
       </section>
 
-      <section class="card">
-        <h2>需求澄清向导（可持续完善）</h2>
-        <p>在正式上线前，建议先完成以下澄清项（状态会自动保存到本地浏览器）：</p>
+      <section class="panel">
+        <h2>需求澄清清单</h2>
+        <p class="small">勾选后自动保存，可用于你和管理层对齐项目边界。</p>
         <div id="clarification-list" class="list"></div>
       </section>
 
-      <section class="card full">
-        <div class="tabs">
-          <button class="tab active" data-tab="knowledge">1) AI 相关知识库</button>
-          <button class="tab" data-tab="updates">2) 监管动态</button>
-          <button class="tab" data-tab="reports">3) 分析报告</button>
-        </div>
+      <section class="panel full">
+        <nav class="tabs">
+          <button class="tab active" data-tab="knowledge">知识库</button>
+          <button class="tab" data-tab="updates">监管动态</button>
+          <button class="tab" data-tab="reports">分析报告</button>
+        </nav>
 
         <div id="knowledge" class="tab-panel active">
-          <h3>知识库（欧盟及成员国立法 / 指导 / 判例）</h3>
+          <h2>AI 相关知识库（立法 / 指导 / 判例）</h2>
+          <div class="toolbar">
+            <input id="knowledge-search" placeholder="搜索标题、法域、来源..." />
+            <select id="knowledge-domain-filter">
+              <option value="all">全部领域</option>
+              <option value="隐私">隐私合规（重点）</option>
+              <option value="竞争法">竞争法</option>
+              <option value="消费者保护">消费者保护</option>
+              <option value="网络安全">网络安全</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+
           <form id="knowledge-form" class="form-grid">
-            <input name="title" placeholder="标题，如：EDPB 对生成式AI的指导" required />
-            <input name="jurisdiction" placeholder="法域，如：欧盟 / 德国 / 法国" required />
+            <input name="title" placeholder="标题" required />
+            <input name="jurisdiction" placeholder="法域（欧盟/德国/法国...）" required />
             <select name="type" required>
-              <option value="">选择类型</option>
+              <option value="">类型</option>
               <option>立法</option>
               <option>监管指导</option>
               <option>判例</option>
             </select>
             <select name="domain" required>
-              <option value="">选择领域</option>
+              <option value="">领域</option>
               <option>隐私合规（重点）</option>
               <option>竞争法</option>
               <option>消费者保护</option>
               <option>网络安全</option>
               <option>其他</option>
             </select>
-            <input name="source" placeholder="来源链接或出处" required />
-            <button type="submit">添加知识条目</button>
+            <input name="source" placeholder="来源链接或机构" required />
+            <button type="submit">新增条目</button>
           </form>
+
           <div id="knowledge-list" class="list"></div>
         </div>
 
         <div id="updates" class="tab-panel">
-          <h3>监管动态（新闻 / 立法进展 / 执法动态）</h3>
+          <h2>监管动态（新闻 / 立法进展 / 执法）</h2>
+          <div class="toolbar">
+            <input id="updates-search" placeholder="搜索标题、影响、来源..." />
+            <select id="updates-domain-filter">
+              <option value="all">全部领域</option>
+              <option value="隐私">隐私合规（重点）</option>
+              <option value="竞争法">竞争法</option>
+              <option value="消费者保护">消费者保护</option>
+              <option value="网络安全">网络安全</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+
           <form id="update-form" class="form-grid">
             <input name="title" placeholder="动态标题" required />
             <select name="kind" required>
@@ -79,31 +117,30 @@
               <option>网络安全</option>
               <option>其他</option>
             </select>
-            <input name="impact" placeholder="对业务的潜在影响（简述）" required />
-            <input name="source" placeholder="来源链接或出处" required />
-            <button type="submit">添加动态</button>
+            <input name="impact" placeholder="潜在业务影响" required />
+            <input name="source" placeholder="来源链接或机构" required />
+            <button type="submit">新增动态</button>
           </form>
+
           <div id="updates-list" class="list"></div>
         </div>
 
         <div id="reports" class="tab-panel">
-          <h3>分析报告</h3>
-          <div class="report-controls">
-            <button id="generate-global">生成“全局报告”</button>
-          </div>
+          <h2>分析报告</h2>
+          <button id="generate-global">生成全局报告</button>
           <article class="report">
-            <h4>全局报告（自动生成）</h4>
-            <div id="global-report">尚未生成报告。</div>
+            <h3>全局报告</h3>
+            <div id="global-report">点击按钮生成最新评估。</div>
           </article>
           <article class="report">
-            <h4>时评（针对每条动态）</h4>
+            <h3>时评（按动态自动生成）</h3>
             <div id="commentary-list" class="list"></div>
           </article>
         </div>
       </section>
     </main>
 
-    <footer class="footer">本应用为内部合规支持原型，可按你后续澄清需求迭代为团队系统。</footer>
+    <footer class="footer">原型版本：可本地运行、可视化查看、可用于管理层演示。</footer>
 
     <script src="app.js"></script>
   </body>

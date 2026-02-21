@@ -1,12 +1,12 @@
-const KEY = "eu_ai_compliance_tracker_v1";
+const STORAGE_KEY = "eu_ai_tracker_v2";
 
-const defaultData = {
+const defaultState = {
   clarifications: [
-    "目标市场优先级（先覆盖哪些欧盟成员国）",
-    "业务形态（仅模型服务、API、还是终端应用）",
-    "数据流路径（是否跨境、是否本地化部署）",
-    "内部汇报频率（周报、双周报、月报）",
-    "风险分级标准（高/中/低的判定口径）",
+    "首批覆盖成员国（建议先德法爱意）",
+    "业务上线模式（API、SaaS、本地化部署）",
+    "训练与推理数据跨境传输路径",
+    "内部汇报节奏（周报/双周/月报）",
+    "风险等级判定与升级机制",
   ].map((text) => ({ text, done: false })),
   knowledge: [
     {
@@ -16,58 +16,99 @@ const defaultData = {
       domain: "隐私合规（重点）",
       source: "EUR-Lex",
     },
+    {
+      title: "德国 BfDI 对 AI 训练数据处理指引",
+      jurisdiction: "德国",
+      type: "监管指导",
+      domain: "隐私合规（重点）",
+      source: "BfDI",
+    },
   ],
   updates: [
     {
-      title: "EDPB 发布 AI 与 GDPR 协调执行说明",
+      title: "EDPB 讨论 AI 模型训练与 GDPR 合法性基础",
       kind: "监管声明",
       domain: "隐私合规（重点）",
-      impact: "提高训练数据可追溯和合法性审查要求",
-      source: "EDPB 官网",
+      impact: "需补强训练数据来源审计与数据主体权利响应",
+      source: "EDPB",
+      date: new Date().toLocaleDateString("zh-CN"),
+    },
+    {
+      title: "法国竞争管理机构关注生成式AI平台竞争门槛",
+      kind: "新闻报道",
+      domain: "竞争法",
+      impact: "平台合作与分发渠道需评估排他性风险",
+      source: "Autorité de la concurrence",
       date: new Date().toLocaleDateString("zh-CN"),
     },
   ],
 };
 
-const state = load();
+const state = loadState();
 
-function load() {
-  const saved = localStorage.getItem(KEY);
-  if (!saved) return structuredClone(defaultData);
+function loadState() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (!saved) return structuredClone(defaultState);
   try {
     return JSON.parse(saved);
   } catch {
-    return structuredClone(defaultData);
+    return structuredClone(defaultState);
   }
 }
 
-function save() {
-  localStorage.setItem(KEY, JSON.stringify(state));
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-function isPrivacy(domain) {
+function isPrivacy(domain = "") {
   return domain.includes("隐私");
+}
+
+function containsText(item, keyword, fields) {
+  if (!keyword) return true;
+  const value = fields.map((f) => item[f] || "").join(" ").toLowerCase();
+  return value.includes(keyword.toLowerCase());
+}
+
+function matchDomain(itemDomain, domainFilter) {
+  if (domainFilter === "all") return true;
+  return itemDomain.includes(domainFilter);
+}
+
+function renderKpis() {
+  const knowledgeCount = state.knowledge.length;
+  const updatesCount = state.updates.length;
+  const privacyCount = state.updates.filter((u) => isPrivacy(u.domain)).length;
+  const ratio = updatesCount ? Math.round((privacyCount / updatesCount) * 100) : 0;
+  const done = state.clarifications.filter((c) => c.done).length;
+
+  document.querySelector("#kpi-knowledge").textContent = knowledgeCount;
+  document.querySelector("#kpi-updates").textContent = updatesCount;
+  document.querySelector("#kpi-privacy-ratio").textContent = `${ratio}%`;
+  document.querySelector("#kpi-clarification").textContent = `${done}/${state.clarifications.length}`;
 }
 
 function renderClarifications() {
   const host = document.querySelector("#clarification-list");
   host.innerHTML = "";
+
   state.clarifications.forEach((item, idx) => {
-    const row = document.createElement("label");
-    row.className = "item";
-    row.innerHTML = `
-      <input type="checkbox" ${item.done ? "checked" : ""} data-idx="${idx}" />
+    const div = document.createElement("label");
+    div.className = "item";
+    div.innerHTML = `
+      <input type="checkbox" data-index="${idx}" ${item.done ? "checked" : ""} />
       ${item.text}
-      <span class="small">${item.done ? "已澄清" : "待澄清"}</span>
+      <span class="small">${item.done ? "已完成" : "待确认"}</span>
     `;
-    host.appendChild(row);
+    host.appendChild(div);
   });
 
-  host.querySelectorAll("input[type=checkbox]").forEach((box) => {
-    box.addEventListener("change", (e) => {
-      const idx = Number(e.target.dataset.idx);
-      state.clarifications[idx].done = e.target.checked;
-      save();
+  host.querySelectorAll("input[type=checkbox]").forEach((el) => {
+    el.addEventListener("change", (e) => {
+      const index = Number(e.target.dataset.index);
+      state.clarifications[index].done = e.target.checked;
+      saveState();
+      renderKpis();
       renderClarifications();
     });
   });
@@ -75,15 +116,30 @@ function renderClarifications() {
 
 function renderKnowledge() {
   const host = document.querySelector("#knowledge-list");
+  const keyword = document.querySelector("#knowledge-search").value.trim();
+  const domainFilter = document.querySelector("#knowledge-domain-filter").value;
+
+  const items = state.knowledge.filter(
+    (k) =>
+      containsText(k, keyword, ["title", "jurisdiction", "source"]) &&
+      matchDomain(k.domain, domainFilter)
+  );
+
   host.innerHTML = "";
-  state.knowledge.forEach((k) => {
+  if (!items.length) {
+    host.innerHTML = '<div class="item small">没有匹配的知识条目。</div>';
+    return;
+  }
+
+  items.forEach((k) => {
     const div = document.createElement("div");
     div.className = `item ${isPrivacy(k.domain) ? "privacy" : ""}`;
     div.innerHTML = `
       <strong>${k.title}</strong>
       <span class="badge">${k.type}</span>
       <span class="badge ${isPrivacy(k.domain) ? "privacy" : ""}">${k.domain}</span>
-      <div class="small">法域：${k.jurisdiction} ｜ 来源：${k.source}</div>
+      <div class="small">法域：${k.jurisdiction}</div>
+      <div class="small">来源：${k.source}</div>
     `;
     host.appendChild(div);
   });
@@ -91,8 +147,22 @@ function renderKnowledge() {
 
 function renderUpdates() {
   const host = document.querySelector("#updates-list");
+  const keyword = document.querySelector("#updates-search").value.trim();
+  const domainFilter = document.querySelector("#updates-domain-filter").value;
+
+  const items = state.updates.filter(
+    (u) =>
+      containsText(u, keyword, ["title", "impact", "source"]) &&
+      matchDomain(u.domain, domainFilter)
+  );
+
   host.innerHTML = "";
-  state.updates.forEach((u) => {
+  if (!items.length) {
+    host.innerHTML = '<div class="item small">没有匹配的监管动态。</div>';
+    return;
+  }
+
+  items.forEach((u) => {
     const div = document.createElement("div");
     div.className = `item ${isPrivacy(u.domain) ? "privacy" : ""}`;
     div.innerHTML = `
@@ -109,59 +179,74 @@ function renderUpdates() {
 function renderCommentary() {
   const host = document.querySelector("#commentary-list");
   host.innerHTML = "";
+
   if (!state.updates.length) {
-    host.textContent = "暂无动态。";
+    host.innerHTML = '<div class="item small">暂无动态可生成时评。</div>';
     return;
   }
+
   state.updates.forEach((u) => {
     const div = document.createElement("div");
     div.className = `item ${isPrivacy(u.domain) ? "privacy" : ""}`;
     div.innerHTML = `
       <strong>【时评】${u.title}</strong>
-      <p class="small">总结：该动态属于“${u.kind}”，反映了 ${u.domain} 领域监管持续收紧与细化。</p>
-      <p class="small">评价：建议将“${u.impact}”纳入下一轮内部合规行动，优先评估对模型训练、上线节奏和审计留痕的影响。</p>
+      <div class="small">总结：该事件属于“${u.kind}”，显示 ${u.domain} 监管要求在持续细化。</div>
+      <div class="small">评价：建议围绕“${u.impact}”尽快形成内部整改/预案，并纳入下一轮管理层汇报。</div>
     `;
     host.appendChild(div);
   });
 }
 
-function generateGlobalReport() {
+function renderGlobalReport() {
   const total = state.updates.length;
-  const privacyCount = state.updates.filter((u) => isPrivacy(u.domain)).length;
-  const privacyRatio = total ? Math.round((privacyCount / total) * 100) : 0;
-  const clarified = state.clarifications.filter((c) => c.done).length;
+  const privacy = state.updates.filter((u) => isPrivacy(u.domain)).length;
+  const done = state.clarifications.filter((c) => c.done).length;
+  const percentage = total ? Math.round((privacy / total) * 100) : 0;
 
   document.querySelector("#global-report").innerHTML = `
-    <p><strong>总体评估：</strong>当前共跟踪 ${total} 条监管动态，其中隐私合规相关 ${privacyCount} 条（${privacyRatio}%）。监管趋势表现为跨部门协同加强，隐私、竞争与消费者保护议题趋于融合。</p>
-    <p><strong>合规风险：</strong>若训练数据来源治理、合法性证明、跨境传输评估不足，可能触发 GDPR 与成员国执法风险。</p>
-    <p><strong>合规趋势：</strong>欧盟层面规则框架趋于明确，成员国执行尺度仍存在差异，建议采用“欧盟统一基线 + 国家差异补丁”的合规机制。</p>
-    <p><strong>准备度：</strong>需求澄清完成度 ${clarified}/${state.clarifications.length}。建议在完成全部澄清项后，输出首版面向管理层的正式合规路线图。</p>
+    <p><strong>总体态势：</strong>已纳入 ${total} 条监管动态，其中隐私合规 ${privacy} 条（${percentage}%），隐私仍是合规核心。</p>
+    <p><strong>风险观察：</strong>训练数据合法性、数据主体权利响应、跨境传输评估是近期高频执法触发点。</p>
+    <p><strong>趋势判断：</strong>欧盟层面框架清晰化，成员国执行趋于差异化，建议采用“欧盟统一基线 + 国别补丁”治理模式。</p>
+    <p><strong>准备度：</strong>需求澄清完成 ${done}/${state.clarifications.length}，建议补齐后形成管理层版本路线图。</p>
   `;
 }
 
 function bindForms() {
   document.querySelector("#knowledge-form").addEventListener("submit", (e) => {
     e.preventDefault();
-    const fd = new FormData(e.target);
-    state.knowledge.unshift(Object.fromEntries(fd.entries()));
+    const formData = new FormData(e.target);
+    const item = Object.fromEntries(formData.entries());
+    state.knowledge.unshift(item);
     e.target.reset();
-    save();
+    saveState();
+    renderKpis();
     renderKnowledge();
   });
 
   document.querySelector("#update-form").addEventListener("submit", (e) => {
     e.preventDefault();
-    const fd = new FormData(e.target);
-    const obj = Object.fromEntries(fd.entries());
-    obj.date = new Date().toLocaleDateString("zh-CN");
-    state.updates.unshift(obj);
+    const formData = new FormData(e.target);
+    const item = Object.fromEntries(formData.entries());
+    item.date = new Date().toLocaleDateString("zh-CN");
+    state.updates.unshift(item);
     e.target.reset();
-    save();
+    saveState();
+    renderKpis();
     renderUpdates();
     renderCommentary();
   });
+}
 
-  document.querySelector("#generate-global").addEventListener("click", generateGlobalReport);
+function bindFilters() {
+  [
+    "#knowledge-search",
+    "#knowledge-domain-filter",
+  ].forEach((selector) => document.querySelector(selector).addEventListener("input", renderKnowledge));
+
+  [
+    "#updates-search",
+    "#updates-domain-filter",
+  ].forEach((selector) => document.querySelector(selector).addEventListener("input", renderUpdates));
 }
 
 function bindTabs() {
@@ -169,15 +254,26 @@ function bindTabs() {
   tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
       tabs.forEach((t) => t.classList.remove("active"));
-      document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
+      document.querySelectorAll(".tab-panel").forEach((panel) => panel.classList.remove("active"));
       tab.classList.add("active");
       document.querySelector(`#${tab.dataset.tab}`).classList.add("active");
     });
   });
 }
 
+function bindActions() {
+  document.querySelector("#generate-global").addEventListener("click", renderGlobalReport);
+  document.querySelector("#seed-demo").addEventListener("click", () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultState));
+    location.reload();
+  });
+}
+
 bindTabs();
 bindForms();
+bindFilters();
+bindActions();
+renderKpis();
 renderClarifications();
 renderKnowledge();
 renderUpdates();
