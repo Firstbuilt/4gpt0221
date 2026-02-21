@@ -30,3 +30,14 @@ python3 -m http.server 8000
 
 - 数据存储在浏览器 `localStorage`，刷新后保留。
 - 这是原型，后续可扩展为后端版（数据库、权限、自动抓取、周报导出）。
+
+
+## Preview/一键启动（推荐）
+
+如果你的 preview 环境默认执行 `npm start`，可直接使用：
+
+```bash
+npm start
+```
+
+默认端口为 `8000`，也支持通过环境变量指定端口（如 `PORT=4173 npm start`）。

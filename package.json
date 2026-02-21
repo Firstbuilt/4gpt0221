@@ -1,0 +1,10 @@
+{
+  "name": "eu-ai-compliance-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "EU AI compliance tracker frontend prototype",
+  "scripts": {
+    "start": "sh -c 'python3 -m http.server ${PORT:-8000}'",
+    "check": "node --check app.js"
+  }
+}
