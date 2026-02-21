@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>欧盟AI监管追踪台</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div>
+        <h1 id="title-main">欧盟 AI 监管追踪台</h1>
+        <p id="subtitle-main">面向欧洲市场 AI 产品的合规监测与管理层汇报前台</p>
+      </div>
+      <div class="header-actions">
+        <button id="lang-toggle" class="secondary">EN</button>
+        <button id="seed-demo" class="secondary">加载演示数据</button>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="panel kpi-grid">
+        <article class="kpi">
+          <h3 id="kpi-label-knowledge">知识条目总数</h3>
+          <p id="kpi-knowledge">0</p>
+        </article>
+        <article class="kpi">
+          <h3 id="kpi-label-updates">监管动态总数</h3>
+          <p id="kpi-updates">0</p>
+        </article>
+        <article class="kpi privacy">
+          <h3 id="kpi-label-privacy-ratio">隐私合规占比</h3>
+          <p id="kpi-privacy-ratio">0%</p>
+        </article>
+        <article class="kpi">
+          <h3 id="kpi-label-privacy-count">重点隐私动态</h3>
+          <p id="kpi-privacy-count">0</p>
+        </article>
+      </section>
+
+      <section class="panel full">
+        <nav class="tabs">
+          <button id="tab-knowledge" class="tab active" data-tab="knowledge">知识库</button>
+          <button id="tab-updates" class="tab" data-tab="updates">监管动态</button>
+          <button id="tab-reports" class="tab" data-tab="reports">分析报告</button>
+        </nav>
+
+        <div id="knowledge" class="tab-panel active">
+          <h2 id="knowledge-heading">AI 相关知识库（立法 / 指导 / 判例）</h2>
+          <div class="toolbar">
+            <input id="knowledge-search" placeholder="搜索标题、法域、来源..." />
+            <select id="knowledge-domain-filter">
+              <option value="all">全部领域</option>
+              <option value="隐私">隐私合规（重点）</option>
+              <option value="竞争法">竞争法</option>
+              <option value="消费者保护">消费者保护</option>
+              <option value="网络安全">网络安全</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+
+          <form id="knowledge-form" class="form-grid">
+            <input name="title" placeholder="标题" required />
+            <input name="jurisdiction" placeholder="法域（欧盟/德国/法国...）" required />
+            <select name="type" required>
+              <option value="">类型</option>
+              <option>立法</option>
+              <option>监管指导</option>
+              <option>判例</option>
+            </select>
+            <select name="domain" required>
+              <option value="">领域</option>
+              <option>隐私合规（重点）</option>
+              <option>竞争法</option>
+              <option>消费者保护</option>
+              <option>网络安全</option>
+              <option>其他</option>
+            </select>
+            <input name="source" placeholder="来源链接或机构" required />
+            <button id="knowledge-submit" type="submit">新增条目</button>
+          </form>
+
+          <div id="knowledge-list" class="list"></div>
+        </div>
+
+        <div id="updates" class="tab-panel">
+          <h2 id="updates-heading">监管动态（新闻 / 立法进展 / 执法）</h2>
+          <div class="toolbar">
+            <input id="updates-search" placeholder="搜索标题、影响、来源..." />
+            <select id="updates-domain-filter">
+              <option value="all">全部领域</option>
+              <option value="隐私">隐私合规（重点）</option>
+              <option value="竞争法">竞争法</option>
+              <option value="消费者保护">消费者保护</option>
+              <option value="网络安全">网络安全</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+
+          <form id="update-form" class="form-grid">
+            <input name="title" placeholder="动态标题" required />
+            <select name="kind" required>
+              <option value="">动态类型</option>
+              <option>新闻报道</option>
+              <option>立法进展</option>
+              <option>执法动态</option>
+              <option>监管声明</option>
+            </select>
+            <select name="domain" required>
+              <option value="">监管领域</option>
+              <option>隐私合规（重点）</option>
+              <option>竞争法</option>
+              <option>消费者保护</option>
+              <option>网络安全</option>
+              <option>其他</option>
+            </select>
+            <input name="impact" placeholder="潜在业务影响" required />
+            <input name="source" placeholder="来源链接或机构" required />
+            <button id="updates-submit" type="submit">新增动态</button>
+          </form>
+
+          <div id="updates-list" class="list"></div>
+        </div>
+
+        <div id="reports" class="tab-panel">
+          <h2 id="reports-heading">分析报告</h2>
+          <button id="generate-global">生成全局报告</button>
+          <article class="report">
+            <h3 id="global-report-title">全局报告</h3>
+            <div id="global-report">点击按钮生成最新评估。</div>
+          </article>
+          <article class="report">
+            <h3 id="commentary-title">时评（按动态自动生成）</h3>
+            <div id="commentary-list" class="list"></div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer id="footer-main" class="footer">原型版本：可本地运行、可视化查看、可用于管理层演示。</footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
