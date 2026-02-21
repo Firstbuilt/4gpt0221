@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>欧盟AI监管追踪台</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <h1>欧盟 AI 监管追踪台</h1>
+      <p>为“欧洲隐私合规专家”提供知识库、监管动态与分析报告的一体化工作台。</p>
+    </header>
+
+    <main class="layout">
+      <section class="card">
+        <h2>身份与业务背景</h2>
+        <ul>
+          <li><strong>你的身份：</strong>欧洲隐私合规专家</li>
+          <li><strong>公司背景：</strong>中国总部企业，计划面向欧洲市场推出 AI 大模型及应用</li>
+          <li><strong>汇报对象：</strong>公司内部管理层</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>需求澄清向导（可持续完善）</h2>
+        <p>在正式上线前，建议先完成以下澄清项（状态会自动保存到本地浏览器）：</p>
+        <div id="clarification-list" class="list"></div>
+      </section>
+
+      <section class="card full">
+        <div class="tabs">
+          <button class="tab active" data-tab="knowledge">1) AI 相关知识库</button>
+          <button class="tab" data-tab="updates">2) 监管动态</button>
+          <button class="tab" data-tab="reports">3) 分析报告</button>
+        </div>
+
+        <div id="knowledge" class="tab-panel active">
+          <h3>知识库（欧盟及成员国立法 / 指导 / 判例）</h3>
+          <form id="knowledge-form" class="form-grid">
+            <input name="title" placeholder="标题，如：EDPB 对生成式AI的指导" required />
+            <input name="jurisdiction" placeholder="法域，如：欧盟 / 德国 / 法国" required />
+            <select name="type" required>
+              <option value="">选择类型</option>
+              <option>立法</option>
+              <option>监管指导</option>
+              <option>判例</option>
+            </select>
+            <select name="domain" required>
+              <option value="">选择领域</option>
+              <option>隐私合规（重点）</option>
+              <option>竞争法</option>
+              <option>消费者保护</option>
+              <option>网络安全</option>
+              <option>其他</option>
+            </select>
+            <input name="source" placeholder="来源链接或出处" required />
+            <button type="submit">添加知识条目</button>
+          </form>
+          <div id="knowledge-list" class="list"></div>
+        </div>
+
+        <div id="updates" class="tab-panel">
+          <h3>监管动态（新闻 / 立法进展 / 执法动态）</h3>
+          <form id="update-form" class="form-grid">
+            <input name="title" placeholder="动态标题" required />
+            <select name="kind" required>
+              <option value="">动态类型</option>
+              <option>新闻报道</option>
+              <option>立法进展</option>
+              <option>执法动态</option>
+              <option>监管声明</option>
+            </select>
+            <select name="domain" required>
+              <option value="">监管领域</option>
+              <option>隐私合规（重点）</option>
+              <option>竞争法</option>
+              <option>消费者保护</option>
+              <option>网络安全</option>
+              <option>其他</option>
+            </select>
+            <input name="impact" placeholder="对业务的潜在影响（简述）" required />
+            <input name="source" placeholder="来源链接或出处" required />
+            <button type="submit">添加动态</button>
+          </form>
+          <div id="updates-list" class="list"></div>
+        </div>
+
+        <div id="reports" class="tab-panel">
+          <h3>分析报告</h3>
+          <div class="report-controls">
+            <button id="generate-global">生成“全局报告”</button>
+          </div>
+          <article class="report">
+            <h4>全局报告（自动生成）</h4>
+            <div id="global-report">尚未生成报告。</div>
+          </article>
+          <article class="report">
+            <h4>时评（针对每条动态）</h4>
+            <div id="commentary-list" class="list"></div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">本应用为内部合规支持原型，可按你后续澄清需求迭代为团队系统。</footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
