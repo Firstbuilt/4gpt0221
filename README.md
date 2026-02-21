@@ -19,7 +19,7 @@
 ## 运行
 
 ```bash
-python3 -m http.server 8000
+npm start
 ```
 
 浏览器访问：
@@ -41,3 +41,6 @@ npm start
 ```
 
 默认端口为 `8000`，也支持通过环境变量指定端口（如 `PORT=4173 npm start`）。
+
+
+- Preview 启动使用内置 `server.js`，支持未知路径回退到 `index.html`（避免 Preview 打开子路径时报 Not Found）。
